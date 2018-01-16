@@ -1,0 +1,38 @@
+{
+  "dependencies": {
+    "charm": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/charm": "^1.0.1",
+    "@types/node": "^9.3.0",
+    "ts-node": "^4.1.0",
+    "typescript": "^2.5.2"
+  },
+  "name": "super-progress",
+  "version": "1.0.0",
+  "description": "Cli progress bar that features extreme customizability",
+  "main": "dist/example.js",
+  "scripts": {
+    "test": "node ./dist/example.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s73obrien/super-progress.git"
+  },
+  "keywords": [
+    "Node",
+    "Typescript",
+    "Javascript",
+    "progress",
+    "cli",
+    "ui",
+    "terminal",
+    "status"
+  ],
+  "author": "Sean O'Brien <s73obrien@hotmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/s73obrien/super-progress/issues"
+  },
+  "homepage": "https://github.com/s73obrien/super-progress#readme"
+}
