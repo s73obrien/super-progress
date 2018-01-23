@@ -1,22 +1,26 @@
 {
-    "compilerOptions": {
-        "target": "es5",
-        "lib": [
-          "es2017"
-        ],
-        "module": "commonjs",
-        "outDir": "./dist",
-        "sourceMap": true,
-        "declaration": true,
-        "types": [
-          "node"
-        ]
-    },
-    "include": [
-        "./src/*.ts",
-        "./test/*.ts"
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "es2017"
     ],
-    "exclude": [
-        "node_modules"
-    ]
+    "module": "commonjs",
+    "outDir": "dist",
+    "sourceMap": true,
+    "declaration": true,
+    "types": [
+      "node",
+      "jest"
+    ],
+    "strict": true,
+    "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": true
+  },
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

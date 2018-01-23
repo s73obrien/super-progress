@@ -1,20 +1,40 @@
 {
-  "dependencies": {
-    "charm": "^1.0.2"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@types/charm": "^1.0.1",
+    "@types/chalk": "^2.2.0",
+    "@types/jest": "^22.0.1",
     "@types/node": "^9.3.0",
+    "chalk": "^2.3.0",
+    "cli-cursor": "^2.1.0",
+    "detect-node": "^2.0.3",
+    "gradient-string": "^1.0.0",
+    "jest": "^22.1.4",
+    "ts-jest": "^22.0.1",
     "ts-node": "^4.1.0",
     "typescript": "^2.5.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "demo": "node -r ts-node/register src/examples/examples.ts"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "((\\.|/)(test|spec))\\.(tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   },
   "name": "super-progress",
   "version": "1.0.0",
   "description": "Cli progress bar that features extreme customizability",
-  "main": "dist/example.js",
-  "scripts": {
-    "test": "node ./dist/example.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/s73obrien/super-progress.git"
