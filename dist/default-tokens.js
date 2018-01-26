@@ -1,5 +1,5 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 exports.defaultTokenDefinitions = {
     // the bar token displays a bar showing how much of a process has
     // completed.  It takes up as much space as the layout engine will

@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import { Writable } from 'stream';
+import 'core-js/es7/string';
 export interface ProgressOptions {
     total?: number;
     pattern?: string;

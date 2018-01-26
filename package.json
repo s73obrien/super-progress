@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@types/core-js": "^0.9.46",
     "@types/glob": "^5.0.34",
     "@types/jest": "^22.0.1",
     "@types/node": "^9.3.0",
@@ -69,5 +70,8 @@
     "dist/index.d.ts",
     "dist/super-progress.js",
     "dist/super-progress.d.ts"
-  ]
+  ],
+  "dependencies": {
+    "core-js": "^2.5.3"
+  }
 }

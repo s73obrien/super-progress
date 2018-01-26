@@ -2,6 +2,7 @@ import { defaultTokenDefinitions } from './default-tokens';
 import { Writable } from 'stream';
 import { moveCursor, cursorTo } from 'readline';
 import { EOL } from 'os';
+import 'core-js/es7/string';
 
 export interface ProgressOptions {
   total?: number;

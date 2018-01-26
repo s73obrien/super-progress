@@ -1,5 +1,5 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var super_progress_1 = require("./super-progress");
 describe("--Progress--", function () {
     describe('-Construction-', function () {
