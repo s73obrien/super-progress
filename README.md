@@ -44,6 +44,9 @@ On the first pass, each token is queried for its rendered width. If a token retu
 On the second pass, all of the widths of the known-width tokens and 'literal' characters (characters that are not a part of any known token) in the pattern string are added together and subtracted from the space available in the console.  The amount left over (if any) is then divided evenly across all of the tokens that returned a -1 on the first pass.  Every token's render function is then called with the current state of the progress bar and the allowed width per unknown-width token as arguments.  The return value of each render function is then inserted in place of the token's placeholder(s) in the pattern string.
 
 ## Installation
+```
+npm i -S super-progress
+```
 
 ## Usage
 

@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var chalk_1 = require("chalk");
 exports.defaultTokenDefinitions = {
     // the bar token displays a bar showing how much of a process has
     // completed.  It takes up as much space as the layout engine will
@@ -12,7 +11,7 @@ exports.defaultTokenDefinitions = {
                 percent = 1;
             }
             var complete = Math.floor(allowed * percent);
-            return chalk_1.default.bgBlueBright(' '.repeat(complete)) + chalk_1.default.bgBlackBright(' '.repeat(allowed - complete));
+            return "\u001B[104m" + ' '.repeat(complete) + "\u001B[100m" + ' '.repeat(allowed - complete) + "\u001B[49m";
         },
         width: function () { return -1; }
     },

@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import { ProgressTokenDefinitions, ProgressState } from './super-progress';
 
 export const defaultTokenDefinitions: ProgressTokenDefinitions = {
@@ -15,7 +14,7 @@ export const defaultTokenDefinitions: ProgressTokenDefinitions = {
 
       let complete = Math.floor(allowed * percent);
 
-      return chalk.bgBlueBright(' '.repeat(complete)) + chalk.bgBlackBright(' '.repeat(allowed - complete));
+      return `\u001B[104m${' '.repeat(complete)}\u001B[100m${' '.repeat(allowed - complete)}\u001B[49m`;
     },
     width: () => -1
   },

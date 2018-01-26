@@ -16,7 +16,7 @@
     "typescript": "^2.5.2"
   },
   "scripts": {
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "build": "tsc",
     "test": "jest",
     "demo": "node -r ts-node/register src/examples/examples.ts"
