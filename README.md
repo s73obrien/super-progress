@@ -1,4 +1,4 @@
-# Super Progress Bar
+# Super Progress Bar [![Build Status](https://travis-ci.org/s73obrien/super-progress.svg?branch=master)](https://travis-ci.org/s73obrien/super-progress)
 
 Super progress bar is a CLI progress bar.
 
