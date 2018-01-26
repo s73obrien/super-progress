@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { Writable } from 'stream';
-export declare class ProgressOptions {
+export interface ProgressOptions {
     total?: number;
     pattern?: string;
     renderInterval?: number;
@@ -9,12 +9,12 @@ export interface ProgressState {
     startTime: number;
     elapsedTime: number;
     remainingTime: number;
+    nextRender: number;
     percentComplete: number;
     rateTicks: number;
     currentTicks: number;
     totalTicks: number;
     ticksLeft: number;
-    nextRender: number;
 }
 export interface ProgressTokenDefinitions {
     [key: string]: {

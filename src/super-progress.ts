@@ -3,7 +3,7 @@ import { Writable } from 'stream';
 import { moveCursor, cursorTo } from 'readline';
 import { EOL } from 'os';
 
-export class ProgressOptions {
+export interface ProgressOptions {
   total?: number;
   pattern?: string;
   renderInterval?: number;
@@ -13,14 +13,13 @@ export interface ProgressState {
   startTime: number;
   elapsedTime: number;
   remainingTime: number;
+  nextRender: number;
 
   percentComplete: number;
   rateTicks: number;
   currentTicks: number;
   totalTicks: number;
   ticksLeft: number;
-
-  nextRender: number;
 }
 
 export interface ProgressTokenDefinitions {
@@ -80,9 +79,9 @@ export class Progress {
     if (time >= this.state.nextRender) {
       this.state.nextRender = time + this.options.renderInterval!;
 
-      moveCursor(stream, 0, -1 * rendered.length);
-      cursorTo(stream, 0);
       stream.write(rendered.join(EOL));
+      moveCursor(stream, 0, -1 * (rendered.length - 1));
+      cursorTo(stream, 0);
     }
   }
 
@@ -111,7 +110,7 @@ export class Progress {
     // if the token returns a -1 instead of a width, then
     // we will tell it how much space it has on the next pass
     for (let token in this.tokens) {
-      leftovers = leftovers.replace(`{${token}}`, '');
+      leftovers = leftovers.replace(new RegExp(`{${token}}`, 'g'), '');
       let matches = line.match(new RegExp(`\{${token}\}`, 'g'));
       if (matches !== null) {
         let width: number = this.tokens[token].width(this.state);

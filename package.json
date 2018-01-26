@@ -2,11 +2,13 @@
   "dependencies": {},
   "devDependencies": {
     "@types/chalk": "^2.2.0",
+    "@types/glob": "^5.0.34",
     "@types/jest": "^22.0.1",
     "@types/node": "^9.3.0",
     "chalk": "^2.3.0",
     "cli-cursor": "^2.1.0",
     "detect-node": "^2.0.3",
+    "glob": "^7.1.2",
     "gradient-string": "^1.0.0",
     "jest": "^22.1.4",
     "ts-jest": "^22.0.1",
@@ -14,6 +16,7 @@
     "typescript": "^2.5.2"
   },
   "scripts": {
+    "prepublish": "npm run build",
     "build": "tsc",
     "test": "jest",
     "demo": "node -r ts-node/register src/examples/examples.ts"
@@ -33,7 +36,7 @@
     ]
   },
   "name": "super-progress",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Cli progress bar that features extreme customizability",
   "repository": {
     "type": "git",
@@ -44,6 +47,7 @@
     "Typescript",
     "Javascript",
     "progress",
+    "progress bar",
     "cli",
     "ui",
     "terminal",
@@ -54,5 +58,13 @@
   "bugs": {
     "url": "https://github.com/s73obrien/super-progress/issues"
   },
-  "homepage": "https://github.com/s73obrien/super-progress#readme"
+  "homepage": "https://github.com/s73obrien/super-progress#readme",
+  "files": [
+    "dist/default-tokens.js",
+    "dist/default-tokens.d.ts",
+    "dist/index.js",
+    "dist/index.d.ts",
+    "dist/super-progress.js",
+    "dist/super-progress.d.ts"
+  ]
 }

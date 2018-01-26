@@ -46,12 +46,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var default_tokens_1 = require("./default-tokens");
 var readline_1 = require("readline");
 var os_1 = require("os");
-var ProgressOptions = /** @class */ (function () {
-    function ProgressOptions() {
-    }
-    return ProgressOptions;
-}());
-exports.ProgressOptions = ProgressOptions;
 var Progress = /** @class */ (function () {
     function Progress(options, tokens, state) {
         this.options = options;
@@ -65,9 +59,9 @@ var Progress = /** @class */ (function () {
                 time = Date.now();
                 if (time >= this.state.nextRender) {
                     this.state.nextRender = time + this.options.renderInterval;
-                    readline_1.moveCursor(stream, 0, -1 * rendered.length);
-                    readline_1.cursorTo(stream, 0);
                     stream.write(rendered.join(os_1.EOL));
+                    readline_1.moveCursor(stream, 0, -1 * (rendered.length - 1));
+                    readline_1.cursorTo(stream, 0);
                 }
                 return [2 /*return*/];
             });
@@ -108,7 +102,7 @@ var Progress = /** @class */ (function () {
                 // if the token returns a -1 instead of a width, then
                 // we will tell it how much space it has on the next pass
                 for (token in this.tokens) {
-                    leftovers = leftovers.replace("{" + token + "}", '');
+                    leftovers = leftovers.replace(new RegExp("{" + token + "}", 'g'), '');
                     matches = line.match(new RegExp("{" + token + "}", 'g'));
                     if (matches !== null) {
                         width = this.tokens[token].width(this.state);
