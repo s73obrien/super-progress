@@ -1,7 +1,5 @@
 {
-  "dependencies": {},
   "devDependencies": {
-    "@types/chalk": "^2.2.0",
     "@types/glob": "^5.0.34",
     "@types/jest": "^22.0.1",
     "@types/node": "^9.3.0",
@@ -20,6 +18,9 @@
     "build": "tsc",
     "test": "jest",
     "demo": "node -r ts-node/register src/examples/examples.ts"
+  },
+  "engines": {
+    "node": ">=8.0.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
