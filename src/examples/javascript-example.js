@@ -1,4 +1,4 @@
-const progress = require('../../dist');
+const progress = require('../../dist').Progress;
 const os = require('os');
 
 const pb = progress.create();

@@ -1,4 +1,7 @@
 "use strict";
-var super_progress_1 = require("./super-progress");
-module.exports = super_progress_1.Progress;
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(require("./super-progress"));
 //# sourceMappingURL=index.js.map

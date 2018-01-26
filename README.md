@@ -52,9 +52,7 @@ npm i -S super-progress
 
 ### Typescript
 ```typescript
-// Note: Import from 'super-progress/super-progress'
-// in Typescript
-import { Progress } from 'super-progress/super-progress';
+import { Progress } from 'super-progress';
 import { clearInterval } from 'timers';
 
 const pb = Progress.create();
@@ -73,7 +71,7 @@ let t = setInterval(() => {
 
 ### Javascript
 ```javascript
-const progress = require('super-progress');
+const progress = require('super-progress').Progress;
 
 const pb = progress.create();
 
