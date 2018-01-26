@@ -21,6 +21,7 @@
     "test": "jest",
     "demo": "node -r ts-node/register src/examples/examples.ts"
   },
+  "main": "dist/index.js",
   "jest": {
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
