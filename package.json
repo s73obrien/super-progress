@@ -71,7 +71,5 @@
     "dist/super-progress.js",
     "dist/super-progress.d.ts"
   ],
-  "dependencies": {
-    "core-js": "^2.5.3"
-  }
+  "dependencies": {}
 }

@@ -46,7 +46,6 @@ exports.__esModule = true;
 var default_tokens_1 = require("./default-tokens");
 var readline_1 = require("readline");
 var os_1 = require("os");
-require("core-js/es7/string");
 var Progress = /** @class */ (function () {
     function Progress(options, tokens, state) {
         this.options = options;
@@ -149,4 +148,22 @@ var Progress = /** @class */ (function () {
     return Progress;
 }());
 exports.Progress = Progress;
+// https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
+if (!String.prototype.padStart) {
+    String.prototype.padStart = function padStart(targetLength, padString) {
+        targetLength = targetLength >> 0; //truncate if number or convert non-number to 0;
+        padString = String((typeof padString !== 'undefined' ? padString : ' '));
+        if (this.length > targetLength) {
+            return String(this);
+        }
+        else {
+            targetLength = targetLength - this.length;
+            if (targetLength > padString.length) {
+                padString += padString.repeat(targetLength / padString.length); //append to original to ensure we are longer than needed
+            }
+            return padString.slice(0, targetLength) + String(this);
+        }
+    };
+}
 //# sourceMappingURL=super-progress.js.map
