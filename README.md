@@ -227,5 +227,8 @@ Displays the strings in rendered on the provided stream.  Each entry in the arra
 #### update(ticks?: number = 1): Promise<void>
 Updates the state of the progress bar by the specified number of ticks.
 
+#### complete(): Promise<void>
+Call this when the process is complete; it works like update.
+
 #### render(width: number): Promise<string[]>
 Renders the progress bar in its current state.  The width specifies how many characters are available on each line.

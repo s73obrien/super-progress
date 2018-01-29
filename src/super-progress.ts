@@ -94,6 +94,15 @@ export class Progress {
     this.state.remainingTime = this.state.currentTicks / this.state.rateTicks;      // ms
   }
 
+  public async complete(): Promise<void> {
+    this.state.currentTicks = this.state.totalTicks;
+    this.state.percentComplete = 1.0;
+    this.state.elapsedTime = Date.now() - this.state.startTime;
+    this.state.ticksLeft = 0;
+    this.state.rateTicks = this.state.currentTicks / this.state.elapsedTime;
+    this.state.remainingTime = 0;
+  }
+
   public async render(
     width: number
   ): Promise<string[]> {
