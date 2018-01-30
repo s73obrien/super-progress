@@ -46,6 +46,7 @@ exports.__esModule = true;
 var default_tokens_1 = require("./default-tokens");
 var readline_1 = require("readline");
 var os_1 = require("os");
+var stringWidth = require('string-width');
 var Progress = /** @class */ (function () {
     function Progress(options, tokens, state) {
         this.options = options;
@@ -81,6 +82,19 @@ var Progress = /** @class */ (function () {
             });
         });
     };
+    Progress.prototype.complete = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                this.state.currentTicks = this.state.totalTicks;
+                this.state.percentComplete = 1.0;
+                this.state.elapsedTime = Date.now() - this.state.startTime;
+                this.state.ticksLeft = 0;
+                this.state.rateTicks = this.state.currentTicks / this.state.elapsedTime;
+                this.state.remainingTime = 0;
+                return [2 /*return*/];
+            });
+        });
+    };
     Progress.prototype.render = function (width) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
@@ -93,11 +107,12 @@ var Progress = /** @class */ (function () {
     };
     Progress.prototype.renderLine = function (line, available) {
         return __awaiter(this, void 0, void 0, function () {
-            var spaceTaken, stars, leftovers, token, matches, width, spaceAvailable, spacePerStar, rendered, token;
+            var spaceTaken, stars, leftovers, widths, token, matches, spaceAvailable, spacePerStar, rendered, token, renderedToken, expectedWidth, renderedWidth_1, renderedWidth;
             return __generator(this, function (_a) {
                 spaceTaken = 0;
                 stars = 0;
                 leftovers = line;
+                widths = {};
                 // loop through each token and acquire the length for each
                 // if the token returns a -1 instead of a width, then
                 // we will tell it how much space it has on the next pass
@@ -105,12 +120,12 @@ var Progress = /** @class */ (function () {
                     leftovers = leftovers.replace(new RegExp("{" + token + "}", 'g'), '');
                     matches = line.match(new RegExp("{" + token + "}", 'g'));
                     if (matches !== null) {
-                        width = this.tokens[token].width(this.state);
-                        if (width === -1) {
+                        widths[token] = this.tokens[token].width(this.state);
+                        if (widths[token] === -1) {
                             stars += matches.length;
                         }
                         else {
-                            spaceTaken += (matches.length * width);
+                            spaceTaken += (matches.length * widths[token]);
                         }
                     }
                 }
@@ -120,8 +135,24 @@ var Progress = /** @class */ (function () {
                     spacePerStar = Math.floor(spaceAvailable / stars);
                 }
                 rendered = line;
-                for (token in this.tokens) {
-                    rendered = rendered.replace(new RegExp("{" + token + "}", 'g'), this.tokens[token].render(this.state, spacePerStar));
+                for (token in widths) {
+                    renderedToken = this.tokens[token].render(this.state, spacePerStar);
+                    expectedWidth = widths[token] === -1 ? spacePerStar : widths[token];
+                    renderedWidth_1 = stringWidth(renderedToken);
+                    if (renderedWidth_1 < expectedWidth) {
+                        renderedToken = renderedToken + ' '.repeat(expectedWidth - renderedWidth_1);
+                    }
+                    else if (renderedWidth_1 > expectedWidth) {
+                        renderedToken = renderedToken.substring(0, expectedWidth);
+                    }
+                    rendered = rendered.replace(new RegExp("{" + token + "}", 'g'), renderedToken);
+                }
+                renderedWidth = stringWidth(rendered);
+                if (renderedWidth > available) {
+                    rendered = rendered.substring(0, available);
+                }
+                else if (renderedWidth < available) {
+                    rendered = rendered + ' '.repeat(available - renderedWidth);
                 }
                 return [2 /*return*/, rendered];
             });
@@ -148,22 +179,4 @@ var Progress = /** @class */ (function () {
     return Progress;
 }());
 exports.Progress = Progress;
-// https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
-if (!String.prototype.padStart) {
-    String.prototype.padStart = function padStart(targetLength, padString) {
-        targetLength = targetLength >> 0; //truncate if number or convert non-number to 0;
-        padString = String((typeof padString !== 'undefined' ? padString : ' '));
-        if (this.length > targetLength) {
-            return String(this);
-        }
-        else {
-            targetLength = targetLength - this.length;
-            if (targetLength > padString.length) {
-                padString += padString.repeat(targetLength / padString.length); //append to original to ensure we are longer than needed
-            }
-            return padString.slice(0, targetLength) + String(this);
-        }
-    };
-}
 //# sourceMappingURL=super-progress.js.map

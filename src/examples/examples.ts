@@ -30,7 +30,7 @@ function runExample(pb: Progress): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     let t = setInterval(() => {
       pb.update()
-      .then(() => pb.render(process.stdout.columns!))
+      .then(() => pb.render(process.stdout.columns! - 1))
       .then(r => pb.display(r, process.stdout))
       .then(() => {
         if (pb.state.percentComplete >= 1.0) {

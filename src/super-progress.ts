@@ -3,6 +3,8 @@ import { Writable } from 'stream';
 import { moveCursor, cursorTo } from 'readline';
 import { EOL } from 'os';
 
+const stringWidth = require('string-width');
+
 export interface ProgressOptions {
   total?: number;
   pattern?: string;
@@ -114,6 +116,7 @@ export class Progress {
     let spaceTaken: number = 0;
     let stars: number = 0;
     let leftovers: string = line;
+    let widths: { [index: string]: number } = {};
 
     // loop through each token and acquire the length for each
     // if the token returns a -1 instead of a width, then
@@ -122,16 +125,16 @@ export class Progress {
       leftovers = leftovers.replace(new RegExp(`{${token}}`, 'g'), '');
       let matches = line.match(new RegExp(`\{${token}\}`, 'g'));
       if (matches !== null) {
-        let width: number = this.tokens[token].width(this.state);
-        if (width === -1) {
+        widths[token] = this.tokens[token].width(this.state);
+        if (widths[token] === -1) {
           stars += matches.length;
         } else {
-          spaceTaken += (matches.length * width);
+          spaceTaken += (matches.length * widths[token]);
         }
       }
     }
 
-    const spaceAvailable = Math.max(0, available - leftovers.length - spaceTaken - 1);
+    const spaceAvailable = Math.max(0, available - leftovers.length - spaceTaken);
 
     let spacePerStar = 0;
     if (stars > 0) {
@@ -139,9 +142,28 @@ export class Progress {
     }
 
     let rendered: string = line;
-    for (let token in this.tokens) {
-      rendered = rendered.replace(new RegExp(`{${token}}`, 'g'), this.tokens[token].render(this.state, spacePerStar));
+    for (let token in widths) {
+      let renderedToken = this.tokens[token].render(this.state, spacePerStar);
+      let expectedWidth = widths[token] === -1 ? spacePerStar : widths[token];
+      let renderedTokenWidth = stringWidth(renderedToken);
+      
+      if (renderedTokenWidth < expectedWidth) {
+        renderedToken = renderedToken + ' '.repeat(expectedWidth - renderedTokenWidth);
+      } else if (renderedTokenWidth > expectedWidth) {
+        renderedToken = renderedToken.substring(0, expectedWidth);
+      }
+
+      rendered = rendered.replace(new RegExp(`{${token}}`, 'g'), renderedToken);
     }
+
+    let renderedWidth = stringWidth(rendered);
+
+    if (renderedWidth < available) {
+      rendered = rendered + ' '.repeat(available - renderedWidth);
+    }
+    //  else if (renderedWidth > available) {
+    //   rendered = rendered.substring(0, available - 1);
+    // }
 
     return rendered;
   }

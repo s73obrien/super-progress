@@ -74,7 +74,7 @@ function runExample(pb) {
     return new Promise(function (resolve, reject) {
         var t = setInterval(function () {
             pb.update()
-                .then(function () { return pb.render(process.stdout.columns); })
+                .then(function () { return pb.render(process.stdout.columns - 1); })
                 .then(function (r) { return pb.display(r, process.stdout); })
                 .then(function () {
                 if (pb.state.percentComplete >= 1.0) {

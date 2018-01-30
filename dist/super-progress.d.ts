@@ -31,6 +31,7 @@ export declare class Progress {
     private constructor();
     display(rendered: string[], stream: Writable): Promise<void>;
     update(ticks?: number): Promise<void>;
+    complete(): Promise<void>;
     render(width: number): Promise<string[]>;
     private renderLine(line, available);
 }

@@ -1,5 +1,22 @@
 "use strict";
 exports.__esModule = true;
+// https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
+function padStart(s, targetLength, padString) {
+    targetLength = targetLength >> 0; //truncate if number or convert non-number to 0;
+    padString = String((typeof padString !== 'undefined' ? padString : ' '));
+    if (s.length > targetLength) {
+        return String(s);
+    }
+    else {
+        targetLength = targetLength - s.length;
+        if (targetLength > padString.length) {
+            padString += padString.repeat(targetLength / padString.length); //append to original to ensure we are longer than needed
+        }
+        return padString.slice(0, targetLength) + String(s);
+    }
+}
+;
 exports.defaultTokenDefinitions = {
     // the bar token displays a bar showing how much of a process has
     // completed.  It takes up as much space as the layout engine will
@@ -24,7 +41,7 @@ exports.defaultTokenDefinitions = {
             var seconds = (state.elapsedTime / 1000) % 60;
             var minutes = Math.floor((state.elapsedTime / 1000 / 60) % 60);
             var hours = Math.floor((state.elapsedTime / 1000 / 60 / 60));
-            return hours.toString().padStart(2, '0') + ":" + minutes.toString().padStart(2, '0') + ":" + seconds.toFixed(3).padStart(6, '0');
+            return padStart(hours.toString(), 2, '0') + ":" + padStart(minutes.toString(), 2, '0') + ":" + padStart(seconds.toFixed(3), 6, '0');
         },
         width: function () { return 12; }
     },
