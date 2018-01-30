@@ -68,7 +68,7 @@ export const defaultTokenDefinitions: ProgressTokenDefinitions = {
         '/'
       ]
 
-      return frames[state.currentTicks % frames.length];
+      return frames[Math.floor((Date.now() % 500) / 125)];
     },
     width: () => 1
   }
