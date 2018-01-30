@@ -41,7 +41,7 @@
     ]
   },
   "name": "super-progress",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Cli progress bar that features extreme customizability",
   "repository": {
     "type": "git",
