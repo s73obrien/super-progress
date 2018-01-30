@@ -63,7 +63,7 @@ exports.defaultTokenDefinitions = {
                 '|',
                 '/'
             ];
-            return frames[state.currentTicks % frames.length];
+            return frames[Math.floor((Date.now() % 500) / 125)];
         },
         width: function () { return 1; }
     }
