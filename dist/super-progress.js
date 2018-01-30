@@ -77,7 +77,7 @@ var Progress = /** @class */ (function () {
                 this.state.elapsedTime = Date.now() - this.state.startTime; // ms
                 this.state.ticksLeft = this.state.totalTicks - this.state.currentTicks; // ticks
                 this.state.rateTicks = this.state.currentTicks / this.state.elapsedTime; // ticks/ms
-                this.state.remainingTime = this.state.currentTicks / this.state.rateTicks; // ms
+                this.state.remainingTime = this.state.ticksLeft / this.state.rateTicks; // ms
                 return [2 /*return*/];
             });
         });
@@ -107,7 +107,7 @@ var Progress = /** @class */ (function () {
     };
     Progress.prototype.renderLine = function (line, available) {
         return __awaiter(this, void 0, void 0, function () {
-            var spaceTaken, stars, leftovers, widths, token, matches, spaceAvailable, spacePerStar, rendered, token, renderedToken, expectedWidth, renderedWidth_1, renderedWidth;
+            var spaceTaken, stars, leftovers, widths, token, matches, spaceAvailable, spacePerStar, rendered, token, renderedToken, expectedWidth, renderedTokenWidth, renderedWidth;
             return __generator(this, function (_a) {
                 spaceTaken = 0;
                 stars = 0;
@@ -129,7 +129,7 @@ var Progress = /** @class */ (function () {
                         }
                     }
                 }
-                spaceAvailable = Math.max(0, available - leftovers.length - spaceTaken - 1);
+                spaceAvailable = Math.max(0, available - leftovers.length - spaceTaken);
                 spacePerStar = 0;
                 if (stars > 0) {
                     spacePerStar = Math.floor(spaceAvailable / stars);
@@ -138,22 +138,22 @@ var Progress = /** @class */ (function () {
                 for (token in widths) {
                     renderedToken = this.tokens[token].render(this.state, spacePerStar);
                     expectedWidth = widths[token] === -1 ? spacePerStar : widths[token];
-                    renderedWidth_1 = stringWidth(renderedToken);
-                    if (renderedWidth_1 < expectedWidth) {
-                        renderedToken = renderedToken + ' '.repeat(expectedWidth - renderedWidth_1);
+                    renderedTokenWidth = stringWidth(renderedToken);
+                    if (renderedTokenWidth < expectedWidth) {
+                        renderedToken = renderedToken + ' '.repeat(expectedWidth - renderedTokenWidth);
                     }
-                    else if (renderedWidth_1 > expectedWidth) {
+                    else if (renderedTokenWidth > expectedWidth) {
                         renderedToken = renderedToken.substring(0, expectedWidth);
                     }
                     rendered = rendered.replace(new RegExp("{" + token + "}", 'g'), renderedToken);
                 }
                 renderedWidth = stringWidth(rendered);
-                if (renderedWidth > available) {
-                    rendered = rendered.substring(0, available);
-                }
-                else if (renderedWidth < available) {
+                if (renderedWidth < available) {
                     rendered = rendered + ' '.repeat(available - renderedWidth);
                 }
+                //  else if (renderedWidth > available) {
+                //   rendered = rendered.substring(0, available - 1);
+                // }
                 return [2 /*return*/, rendered];
             });
         });

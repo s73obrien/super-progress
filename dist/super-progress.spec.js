@@ -123,7 +123,7 @@ describe("--Progress--", function () {
                 pattern: nonToken + "{fixed}{variable}"
             }, tokens);
             pb.render(100).then(function (rendered) {
-                var expectedAlloc = 100 - nonToken.length - tokens.fixed.width() - 1;
+                var expectedAlloc = 100 - nonToken.length - tokens.fixed.width();
                 expect(mockRender.mock.calls[0][1]).toEqual(expectedAlloc);
                 done();
             });
@@ -193,6 +193,22 @@ describe("--Progress--", function () {
             pb.render(200).then(function (rendered) {
                 expect(rendered[0].match('><')).toBeNull;
                 expect(rendered[0].trimRight()).toEqual(compliant);
+                done();
+            });
+        });
+        it("pads a token that is shorter than the width it returns", function (done) {
+            var tokens = {
+                'shrimpy token': {
+                    render: function () { return "shrimpy token"; },
+                    width: function () { return 30; }
+                }
+            };
+            var pb = super_progress_1.Progress.create({
+                pattern: "{shrimpy token}|"
+            }, tokens);
+            pb.render(200).then(function (rendered) {
+                expect(rendered[0].split('|')[0].length).toEqual(30);
+                expect(rendered[0]).toEqual("shrimpy token" + ' '.repeat(17) + "|" + ' '.repeat(169));
                 done();
             });
         });

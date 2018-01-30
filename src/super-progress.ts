@@ -93,7 +93,7 @@ export class Progress {
     this.state.elapsedTime = Date.now() - this.state.startTime;                     // ms
     this.state.ticksLeft = this.state.totalTicks - this.state.currentTicks;         // ticks
     this.state.rateTicks = this.state.currentTicks / this.state.elapsedTime;        // ticks/ms
-    this.state.remainingTime = this.state.currentTicks / this.state.rateTicks;      // ms
+    this.state.remainingTime = this.state.ticksLeft / this.state.rateTicks;      // ms
   }
 
   public async complete(): Promise<void> {
