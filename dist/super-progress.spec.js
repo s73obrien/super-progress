@@ -228,7 +228,10 @@ describe("--Progress--", function () {
                 StreamTest[version].fromChunks(['random data'])
                     .pipe(ps)
                     .pipe(StreamTest[version].toObjects(function (err, objects) {
-                    expect(objects).toMatchObject([['RENDERED TOKEN']]);
+                    expect(objects).toMatchObject([
+                        ['RENDERED TOKEN'],
+                        ['RENDERED TOKEN']
+                    ]);
                     done();
                 }));
             });
