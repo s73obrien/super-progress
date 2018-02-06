@@ -73,9 +73,7 @@ function runExamples() {
 function runExample(pb) {
     return new Promise(function (resolve, reject) {
         var t = setInterval(function () {
-            pb.update()
-                .then(function () { return pb.render(process.stdout.columns - 1); })
-                .then(function (r) { return pb.display(r, process.stdout); })
+            pb.tick()
                 .then(function () {
                 if (pb.state.percentComplete >= 1.0) {
                     process.stdout.write(os_1.EOL);

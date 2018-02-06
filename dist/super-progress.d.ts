@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { Writable } from 'stream';
+import { Writable, Transform } from 'stream';
 export interface ProgressOptions {
     total?: number;
     pattern?: string;
@@ -22,16 +22,20 @@ export interface ProgressTokenDefinitions {
         width: (state: ProgressState) => number;
     };
 }
-export declare class Progress {
+export declare class Progress extends Transform {
+    width: number;
     options: ProgressOptions;
     tokens: ProgressTokenDefinitions;
     state: ProgressState;
-    static create: (options?: ProgressOptions | undefined, tokens?: ProgressTokenDefinitions | undefined, state?: ProgressState | undefined) => Progress;
+    static create: (width: number, options?: ProgressOptions | undefined, tokens?: ProgressTokenDefinitions | undefined, state?: ProgressState | undefined) => Progress;
     static defaultProgressOptions: ProgressOptions;
     private constructor();
+    _transform(data: string | Buffer, encoding: string, callback: Function): any | undefined;
+    _flush(callback: Function): void;
+    tick(ticks?: number, stream?: Writable): Promise<void>;
     display(rendered: string[], stream: Writable): Promise<void>;
     update(ticks?: number): Promise<void>;
     complete(): Promise<void>;
-    render(width: number): Promise<string[]>;
+    render(): Promise<string[]>;
     private renderLine(line, available);
 }

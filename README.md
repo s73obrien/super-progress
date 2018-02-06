@@ -4,13 +4,66 @@ Super progress bar is a CLI progress bar.
 
 ![](default.gif "Super Progress Bar - default implementation")
 
-It accepts a pattern string that contains tokens that represent the different fields that can be output in the progress bar.
+## Installation
+```
+npm i -S super-progress
+```
+
+## Usage
+### API
+#### Typescript
+```typescript
+import { Progress } from 'super-progress';
+import { clearInterval } from 'timers';
+import { EOL } from 'os';
+
+const pb = Progress.create(process.stdout.columns - 1);
+
+let t = setInterval(() => {
+  pb.tick()
+    .then(() => {
+      if (pb.state.percentComplete >= 1.0) {
+        clearInterval(t);
+        process.stdout.write(EOL);
+      }
+    })
+}, 100);
+```
+
+#### Javascript
+```javascript
+const Progress = require('super-progress').Progress;
+// or
+const { Progress } = require('super-progress');
+
+/* Same as above */
+```
+
+### ***NEW!*** Stream support
+Super Progress Bar now includes support for streams.  An instance will also act as a [Transform](https://nodejs.org/dist/latest-v8.x/docs/api/stream.html#stream_duplex_and_transform_streams) stream operating in [object mode](https://nodejs.org/dist/latest-v8.x/docs/api/stream.html#stream_object_mode).  It emits arrays of strings (the same as the output from the [render](#render-promisestring) function).
+
+```typescript
+import { Progress, ConsoleAdapter } from 'super-progress';
+
+const StreamTest = require('streamtest');
+
+StreamTest['v2'].fromObjects(' '.repeat(100).split(''), 100)
+.pipe(Progress.create(process.stdout.columns! - 1))
+.pipe(new ConsoleAdapter(1000))
+.pipe(process.stdout);
+```
+## Configuration
+### Pattern String
+Super Progress Bar accepts a pattern string that contains tokens that represent the different fields that can be output in the progress bar.
 
 ```typescript
 // Default pattern string
-let pb = Progress.create({
-  pattern: `[{spinner}] {bar} | Elapsed: {elapsed} | {percent}`
-});
+let pb = Progress.create(
+  width,
+  {
+    pattern: `[{spinner}] {bar} | Elapsed: {elapsed} | {percent}`
+  }
+);
 ```
 
 It also accepts a set of custom token definitions that define the various tokens in the pattern string as well as how to render each token.
@@ -42,50 +95,6 @@ The progress bar rendering function uses a two-pass process to render the whole 
 On the first pass, each token is queried for its rendered width. If a token returns a -1 instead of a width, this indicates that the token is variable-width and will use the space allotted to it by the render function.
 
 On the second pass, all of the widths of the known-width tokens and 'literal' characters (characters that are not a part of any known token) in the pattern string are added together and subtracted from the space available in the console.  The amount left over (if any) is then divided evenly across all of the tokens that returned a -1 on the first pass.  Every token's render function is then called with the current state of the progress bar and the allowed width per unknown-width token as arguments.  The return value of each render function is then inserted in place of the token's placeholder(s) in the pattern string.
-
-## Installation
-```
-npm i -S super-progress
-```
-
-## Usage
-
-### Typescript
-```typescript
-import { Progress } from 'super-progress';
-import { clearInterval } from 'timers';
-
-const pb = Progress.create();
-
-let t = setInterval(() => {
-  pb.update()
-    .then(() => pb.render(process.stdout.columns))
-    .then(r => pb.display(r, process.stdout))
-    .then(() => {
-      if (pb.state.percentComplete >= 1.0) {
-        clearInterval(t);
-      }
-    })
-}, 100);
-```
-
-### Javascript
-```javascript
-const progress = require('super-progress').Progress;
-
-const pb = progress.create();
-
-let t = setInterval(() => {
-  pb.update()
-    .then(() => pb.render(process.stdout.columns))
-    .then(r => pb.display(r, process.stdout))
-    .then(() => {
-      if (pb.state.percentComplete >= 1.0) {
-        clearInterval(t);
-      }
-    })
-}, 100);
-```
 
 ## API
 ### ProgressOptions
@@ -169,15 +178,16 @@ This function indicates how much space the token will take up (in characters) wh
 Main class that represents the progress bar
 ```typescript
 export class Progress {
-  public static create(options?: ProgressOptions, tokens?: ProgressTokenDefinitions, state?: ProgressState): Progress
+  public static create(width: number, options?: ProgressOptions, tokens?: ProgressTokenDefinitions, state?: ProgressState): Progress
   public async display(rendered: string[], stream: Writable): Promise<void>
   public async update(ticks: number = 1): Promise<void>
-  public async render(width: number): Promise<string[]>
+  public async complete(): Promise<void>
+  public async render(): Promise<string[]>
 }
 ```
 
-#### create(options?: ProgressOptions, tokens?: ProgressTokenDefinitions, state?: ProgressState): Progress
-Creates a new Progress object using the specified parameters.
+#### create(width: number, options?: ProgressOptions, tokens?: ProgressTokenDefinitions, state?: ProgressState): Progress
+Creates a new Progress object using the specified parameters.  The line width must be specified.
 
 Default parameters:
 ```typescript
@@ -221,6 +231,9 @@ state = {
 }
 ```
 
+#### tick(ticks: number = 1, stream: Writable = process.stdout): Promise<void>
+This helper function updates, renders and outputs the progress bar on the given stream.
+
 #### display(rendered: string[], stream: Writable): Promise<void>
 Displays the strings in rendered on the provided stream.  Each entry in the array represents a line.  This function joins the array with os.EOL, writes it to the stream and repositions the cursor to the beginning of the line on which it started.
 
@@ -230,5 +243,5 @@ Updates the state of the progress bar by the specified number of ticks.
 #### complete(): Promise<void>
 Call this when the process is complete; it works like update.
 
-#### render(width: number): Promise<string[]>
-Renders the progress bar in its current state.  The width specifies how many characters are available on each line.
+#### render(): Promise<string[]>
+Renders the progress bar in its current state.  The width specified on progress bar creation controls how wide each output string is when rendered.

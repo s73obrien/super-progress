@@ -40,6 +40,23 @@
       "protocol": "inspector"
     },
     {
+      "type": "node",
+      "request": "launch",
+      "name": "Stream Example",
+      "preLaunchTask": "build",
+      "runtimeArgs": [
+        "-r",
+        "ts-node/register"
+      ],
+      "program": "${workspaceFolder}\\src\\examples\\stream.example.ts",
+      "outFiles": [
+        "${workspaceFolder}\\dist\\**\\*"
+      ],
+      "sourceMaps": true,
+      "console": "integratedTerminal",
+      "protocol": "inspector"
+    },
+    {
       "name": "Debug Jest Tests",
       "type": "node",
       "request": "launch",

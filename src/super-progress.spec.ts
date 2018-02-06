@@ -1,4 +1,5 @@
 import { Progress, ProgressState } from './super-progress';
+const StreamTest = require('streamtest');
 
 describe(`--Progress--`, () => {
   describe('-Construction-', () => {
@@ -20,9 +21,11 @@ describe(`--Progress--`, () => {
 
     it(`accepts a pattern string that contains tokens`,
       done => {
-        let pb = Progress.create({
-          pattern: 'patterned string with {tokens}'
-        });
+        let pb = Progress.create(
+          100,
+          {
+            pattern: 'patterned string with {tokens}'
+          });
 
         expect(pb.options.pattern).toEqual(`patterned string with {tokens}`)
 
@@ -33,28 +36,34 @@ describe(`--Progress--`, () => {
     it(`has defaults for every property in the ProgressOptions argument to the
       constructor, even if only one property is set`,
       done => {
-        let pb = Progress.create();
+        let pb = Progress.create(100);
         expect(pb.options.pattern).toEqual(`[{spinner}] {bar} | Elapsed: {elapsed} | {percent}`);
         expect(pb.options.total).toEqual(100);
         expect(pb.options.renderInterval).toEqual(33);
 
-        pb = Progress.create({
-          pattern: 'new pattern'
-        });
+        pb = Progress.create(
+          100,
+          {
+            pattern: 'new pattern'
+          });
         expect(pb.options.pattern).toEqual(`new pattern`);
         expect(pb.options.total).toEqual(100);
         expect(pb.options.renderInterval).toEqual(33);
 
-        pb = Progress.create({
-          total: 500
-        });
+        pb = Progress.create(
+          100,
+          {
+            total: 500
+          });
         expect(pb.options.pattern).toEqual(`[{spinner}] {bar} | Elapsed: {elapsed} | {percent}`);
         expect(pb.options.total).toEqual(500);
         expect(pb.options.renderInterval).toEqual(33);
 
-        pb = Progress.create({
-          renderInterval: 1000
-        });
+        pb = Progress.create(
+          100,
+          {
+            renderInterval: 1000
+          });
         expect(pb.options.pattern).toEqual(`[{spinner}] {bar} | Elapsed: {elapsed} | {percent}`);
         expect(pb.options.total).toEqual(100);
         expect(pb.options.renderInterval).toEqual(1000);
@@ -64,7 +73,7 @@ describe(`--Progress--`, () => {
 
     it(`accepts a ProgressState object that allows the progress bar to resume`,
       done => {
-        let pb = Progress.create();
+        let pb = Progress.create(100);
 
         for (let i = 0; i < 50; i++) {
           pb.update();
@@ -72,7 +81,11 @@ describe(`--Progress--`, () => {
 
         let state = pb.state;
 
-        let pb2 = Progress.create(undefined, undefined, state);
+        let pb2 = Progress.create(
+          100,
+          undefined,
+          undefined,
+          state);
         pb2.update()
           .then(() => {
             expect(pb2.state.currentTicks).toEqual(state.currentTicks + 1);
@@ -83,16 +96,19 @@ describe(`--Progress--`, () => {
     it(`accepts a set of custom token definitions
       that define the various tokens in the pattern string`,
       done => {
-        let pb = Progress.create(undefined, {
-          token1: {
-            render: () => `TOKEN`,
-            width: () => 5
-          },
-          token2: {
-            render: () => `TOKEN2`,
-            width: () => 6
+        let pb = Progress.create(
+          100,
+          undefined,
+          {
+            token1: {
+              render: () => `TOKEN`,
+              width: () => 5
+            },
+            token2: {
+              render: () => `TOKEN2`,
+              width: () => 6
+            }
           }
-        }
         );
 
         expect(pb.tokens.token1.render(defaultState, 0)).toEqual(`TOKEN`);
@@ -109,12 +125,16 @@ describe(`--Progress--`, () => {
        when there is a collision between the keys
        of two tokens`,
       done => {
-        let pb = Progress.create(undefined, {
-          bar: {
-            render: () => `replaced bar`,
-            width: () => 12
+        let pb = Progress.create(
+          100,
+          undefined,
+          {
+            bar: {
+              render: () => `replaced bar`,
+              width: () => 12
+            }
           }
-        });
+        );
 
         expect(pb.tokens.bar.render(defaultState, 0)).toEqual(`replaced bar`);
         expect(pb.tokens.bar.width(defaultState)).toEqual(12);
@@ -126,6 +146,7 @@ describe(`--Progress--`, () => {
     it(`renders a token with spaces correctly`,
       done => {
         let pb = Progress.create(
+          100,
           {
             pattern: `{token with spaces}`
           },
@@ -137,7 +158,7 @@ describe(`--Progress--`, () => {
           }
         );
 
-        pb.render(100).then((rendered: string[]) => {
+        pb.render().then((rendered: string[]) => {
           expect(rendered[0]).toContain(`SPECIAL TOKEN`);
           done();
         })
@@ -161,13 +182,14 @@ describe(`--Progress--`, () => {
         };
 
         let pb = Progress.create(
+          100,
           {
             pattern: `${nonToken}{fixed}{variable}`
           },
           tokens);
 
-        pb.render(100).then((rendered: string[]) => {
-          const expectedAlloc = 100 - nonToken.length - tokens.fixed.width();
+        pb.render().then((rendered: string[]) => {
+          const expectedAlloc = pb.width - nonToken.length - tokens.fixed.width();
           expect(mockRender.mock.calls[0][1]).toEqual(expectedAlloc);
           done();
         });
@@ -188,25 +210,27 @@ describe(`--Progress--`, () => {
         }
 
         let pb = Progress.create(
+          200,
           {
             pattern: `{too small fixed}`
           },
           tokens
         );
 
-        pb.render(200).then((rendered: string[]) => {
-          expect(rendered[0].length).toEqual(200);
+        pb.render().then((rendered: string[]) => {
+          expect(rendered[0].length).toEqual(pb.width);
         })
 
         pb = Progress.create(
+          200,
           {
             pattern: `{too small variable}`
           },
           tokens
         );
 
-        pb.render(200).then((rendered: string[]) => {
-          expect(rendered[0].length).toEqual(200);
+        pb.render().then((rendered: string[]) => {
+          expect(rendered[0].length).toEqual(pb.width);
           done();
         })
       });
@@ -226,25 +250,27 @@ describe(`--Progress--`, () => {
         };
 
         let pb = Progress.create(
+          200,
           {
             pattern: `{too long fixed}`
           },
           tokens
         );
 
-        pb.render(200).then((rendered: string[]) => {
-          expect(rendered[0].length).toEqual(200);
+        pb.render().then((rendered: string[]) => {
+          expect(rendered[0].length).toEqual(pb.width);
         });
 
         pb = Progress.create(
+          200,
           {
             pattern: `{too long variable}`
           },
           tokens
         );
 
-        pb.render(200).then((rendered: string[]) => {
-          expect(rendered[0].length).toEqual(200);
+        pb.render().then((rendered: string[]) => {
+          expect(rendered[0].length).toEqual(pb.width);
           done();
         })
       })
@@ -261,13 +287,14 @@ describe(`--Progress--`, () => {
         }
 
         let pb = Progress.create(
+          200,
           {
             pattern: `{shady token}`
           },
           tokens
         );
 
-        pb.render(200).then((rendered: string[]) => {
+        pb.render().then((rendered: string[]) => {
           expect(rendered[0].match('><')).toBeNull;
           expect(rendered[0].trimRight()).toEqual(compliant);
           done();
@@ -284,17 +311,44 @@ describe(`--Progress--`, () => {
         };
 
         let pb = Progress.create(
+          200,
           {
             pattern: `{shrimpy token}|`
           },
           tokens
         );
 
-        pb.render(200).then((rendered: string[]) => {
+        pb.render().then((rendered: string[]) => {
           expect(rendered[0].split('|')[0].length).toEqual(30);
           expect(rendered[0]).toEqual(`shrimpy token${' '.repeat(17)}|${' '.repeat(169)}`);
           done();
         })
+      })
+  })
+  describe('-Streams-', () => {
+    it(`reads a writable data stream and outputs an array of strings
+        representing the progress bar`,
+      done => {
+        StreamTest.versions.forEach((version: string) => {
+          let ps = Progress.create(
+            14,
+            {
+              pattern: `{token}`
+            },
+            {
+              token: {
+                render: () => `RENDERED TOKEN`,
+                width: () => 14
+              }
+            });
+
+          StreamTest[version].fromChunks(['random data'])
+            .pipe(ps)
+            .pipe(StreamTest[version].toObjects((err: any, objects: string[]) => {
+              expect(objects).toMatchObject([['RENDERED TOKEN']]);
+              done();
+            }))
+        });
       })
   })
 })

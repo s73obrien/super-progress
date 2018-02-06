@@ -1,9 +1,8 @@
 import { defaultTokenDefinitions } from './default-tokens';
-import { Writable } from 'stream';
-import { moveCursor, cursorTo } from 'readline';
+import { Writable, Transform } from 'stream';
 import { EOL } from 'os';
-
 const stringWidth = require('string-width');
+const ansiEscapes = require('ansi-escapes');
 
 export interface ProgressOptions {
   total?: number;
@@ -31,8 +30,10 @@ export interface ProgressTokenDefinitions {
   }
 }
 
-export class Progress {
+export class Progress extends Transform {
+
   public static create = (
+    width: number,
     options?: ProgressOptions,
     tokens?: ProgressTokenDefinitions,
     state?: ProgressState): Progress => {
@@ -61,7 +62,7 @@ export class Progress {
       s.ticksLeft = o.total;
     }
 
-    return new Progress(o, t, s);
+    return new Progress(width, o, t, s);
   }
 
   public static defaultProgressOptions: ProgressOptions = {
@@ -71,9 +72,40 @@ export class Progress {
   }
 
   private constructor(
+    public width: number,
     public options: ProgressOptions,
     public tokens: ProgressTokenDefinitions,
-    public state: ProgressState) { }
+    public state: ProgressState) {
+    super({
+      readableObjectMode: true
+    });
+  }
+
+  _transform(data: string | Buffer,
+    encoding: string,
+    callback: Function): any | undefined {
+    this.update(data.length)
+      .then(() => this.render())
+      .then((r: string[]) => {
+        this.push(r);
+        callback();
+      });
+  }
+
+  _flush(callback: Function) {
+    this.complete()
+      .then(() => this.render())
+      .then((r: string[]) => {
+        this.push(r);
+        callback();
+      });
+  }
+
+  public async tick(ticks: number = 1, stream: Writable = process.stdout): Promise<void> {
+    return this.update(ticks)
+      .then(() => this.render())
+      .then(r => this.display(r, stream));
+  }
 
   public async display(rendered: string[], stream: Writable): Promise<void> {
 
@@ -81,9 +113,7 @@ export class Progress {
     if (time >= this.state.nextRender) {
       this.state.nextRender = time + this.options.renderInterval!;
 
-      stream.write(rendered.join(EOL));
-      moveCursor(stream, 0, -1 * (rendered.length - 1));
-      cursorTo(stream, 0);
+      stream.write(rendered.join(EOL) + ansiEscapes.cursorUp(rendered.length - 1) + ansiEscapes.cursorLeft);
     }
   }
 
@@ -105,11 +135,9 @@ export class Progress {
     this.state.remainingTime = 0;
   }
 
-  public async render(
-    width: number
-  ): Promise<string[]> {
+  public async render(): Promise<string[]> {
     let lines: string[] = this.options.pattern!.split(/\r\n|\r|\n/g);
-    return Promise.all(lines.map(s => this.renderLine(s, width)));
+    return Promise.all(lines.map(s => this.renderLine(s, this.width)));
   }
 
   private async renderLine(line: string, available: number): Promise<string> {
@@ -146,7 +174,7 @@ export class Progress {
       let renderedToken = this.tokens[token].render(this.state, spacePerStar);
       let expectedWidth = widths[token] === -1 ? spacePerStar : widths[token];
       let renderedTokenWidth = stringWidth(renderedToken);
-      
+
       if (renderedTokenWidth < expectedWidth) {
         renderedToken = renderedToken + ' '.repeat(expectedWidth - renderedTokenWidth);
       } else if (renderedTokenWidth > expectedWidth) {

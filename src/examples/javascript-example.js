@@ -1,16 +1,14 @@
-const progress = require('../../dist').Progress;
-const os = require('os');
+const { Progress } = require('../../dist');
+const { EOL } = require('os');
 
-const pb = progress.create();
+const pb = Progress.create(process.stdout.columns - 1);
 
 let t = setInterval(() => {
-  pb.update()
-    .then(() => pb.render(process.stdout.columns))
-    .then(r => pb.display(r, process.stdout))
+  pb.tick()
     .then(() => {
       if (pb.state.percentComplete >= 1.0) {
         clearInterval(t);
-        process.stdout.write(os.EOL);
+        process.stdout.write(EOL);
       }
     })
 }, 100);

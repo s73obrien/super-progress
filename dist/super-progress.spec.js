@@ -1,6 +1,7 @@
 "use strict";
 exports.__esModule = true;
 var super_progress_1 = require("./super-progress");
+var StreamTest = require('streamtest');
 describe("--Progress--", function () {
     describe('-Construction-', function () {
         var defaultState;
@@ -18,30 +19,30 @@ describe("--Progress--", function () {
             };
         });
         it("accepts a pattern string that contains tokens", function (done) {
-            var pb = super_progress_1.Progress.create({
+            var pb = super_progress_1.Progress.create(100, {
                 pattern: 'patterned string with {tokens}'
             });
             expect(pb.options.pattern).toEqual("patterned string with {tokens}");
             done();
         });
         it("has defaults for every property in the ProgressOptions argument to the\n      constructor, even if only one property is set", function (done) {
-            var pb = super_progress_1.Progress.create();
+            var pb = super_progress_1.Progress.create(100);
             expect(pb.options.pattern).toEqual("[{spinner}] {bar} | Elapsed: {elapsed} | {percent}");
             expect(pb.options.total).toEqual(100);
             expect(pb.options.renderInterval).toEqual(33);
-            pb = super_progress_1.Progress.create({
+            pb = super_progress_1.Progress.create(100, {
                 pattern: 'new pattern'
             });
             expect(pb.options.pattern).toEqual("new pattern");
             expect(pb.options.total).toEqual(100);
             expect(pb.options.renderInterval).toEqual(33);
-            pb = super_progress_1.Progress.create({
+            pb = super_progress_1.Progress.create(100, {
                 total: 500
             });
             expect(pb.options.pattern).toEqual("[{spinner}] {bar} | Elapsed: {elapsed} | {percent}");
             expect(pb.options.total).toEqual(500);
             expect(pb.options.renderInterval).toEqual(33);
-            pb = super_progress_1.Progress.create({
+            pb = super_progress_1.Progress.create(100, {
                 renderInterval: 1000
             });
             expect(pb.options.pattern).toEqual("[{spinner}] {bar} | Elapsed: {elapsed} | {percent}");
@@ -50,12 +51,12 @@ describe("--Progress--", function () {
             done();
         });
         it("accepts a ProgressState object that allows the progress bar to resume", function (done) {
-            var pb = super_progress_1.Progress.create();
+            var pb = super_progress_1.Progress.create(100);
             for (var i = 0; i < 50; i++) {
                 pb.update();
             }
             var state = pb.state;
-            var pb2 = super_progress_1.Progress.create(undefined, undefined, state);
+            var pb2 = super_progress_1.Progress.create(100, undefined, undefined, state);
             pb2.update()
                 .then(function () {
                 expect(pb2.state.currentTicks).toEqual(state.currentTicks + 1);
@@ -63,7 +64,7 @@ describe("--Progress--", function () {
             });
         });
         it("accepts a set of custom token definitions\n      that define the various tokens in the pattern string", function (done) {
-            var pb = super_progress_1.Progress.create(undefined, {
+            var pb = super_progress_1.Progress.create(100, undefined, {
                 token1: {
                     render: function () { return "TOKEN"; },
                     width: function () { return 5; }
@@ -80,7 +81,7 @@ describe("--Progress--", function () {
             done();
         });
         it("replaces default tokens with custom tokens\n       when there is a collision between the keys\n       of two tokens", function (done) {
-            var pb = super_progress_1.Progress.create(undefined, {
+            var pb = super_progress_1.Progress.create(100, undefined, {
                 bar: {
                     render: function () { return "replaced bar"; },
                     width: function () { return 12; }
@@ -93,7 +94,7 @@ describe("--Progress--", function () {
     });
     describe("-Rendering-", function () {
         it("renders a token with spaces correctly", function (done) {
-            var pb = super_progress_1.Progress.create({
+            var pb = super_progress_1.Progress.create(100, {
                 pattern: "{token with spaces}"
             }, {
                 'token with spaces': {
@@ -101,7 +102,7 @@ describe("--Progress--", function () {
                     width: function () { return 13; }
                 }
             });
-            pb.render(100).then(function (rendered) {
+            pb.render().then(function (rendered) {
                 expect(rendered[0]).toContain("SPECIAL TOKEN");
                 done();
             });
@@ -119,11 +120,11 @@ describe("--Progress--", function () {
                     width: function () { return -1; }
                 }
             };
-            var pb = super_progress_1.Progress.create({
+            var pb = super_progress_1.Progress.create(100, {
                 pattern: nonToken + "{fixed}{variable}"
             }, tokens);
-            pb.render(100).then(function (rendered) {
-                var expectedAlloc = 100 - nonToken.length - tokens.fixed.width();
+            pb.render().then(function (rendered) {
+                var expectedAlloc = pb.width - nonToken.length - tokens.fixed.width();
                 expect(mockRender.mock.calls[0][1]).toEqual(expectedAlloc);
                 done();
             });
@@ -139,17 +140,17 @@ describe("--Progress--", function () {
                     width: function () { return -1; }
                 }
             };
-            var pb = super_progress_1.Progress.create({
+            var pb = super_progress_1.Progress.create(200, {
                 pattern: "{too small fixed}"
             }, tokens);
-            pb.render(200).then(function (rendered) {
-                expect(rendered[0].length).toEqual(200);
+            pb.render().then(function (rendered) {
+                expect(rendered[0].length).toEqual(pb.width);
             });
-            pb = super_progress_1.Progress.create({
+            pb = super_progress_1.Progress.create(200, {
                 pattern: "{too small variable}"
             }, tokens);
-            pb.render(200).then(function (rendered) {
-                expect(rendered[0].length).toEqual(200);
+            pb.render().then(function (rendered) {
+                expect(rendered[0].length).toEqual(pb.width);
                 done();
             });
         });
@@ -164,17 +165,17 @@ describe("--Progress--", function () {
                     width: function () { return -1; }
                 }
             };
-            var pb = super_progress_1.Progress.create({
+            var pb = super_progress_1.Progress.create(200, {
                 pattern: "{too long fixed}"
             }, tokens);
-            pb.render(200).then(function (rendered) {
-                expect(rendered[0].length).toEqual(200);
+            pb.render().then(function (rendered) {
+                expect(rendered[0].length).toEqual(pb.width);
             });
-            pb = super_progress_1.Progress.create({
+            pb = super_progress_1.Progress.create(200, {
                 pattern: "{too long variable}"
             }, tokens);
-            pb.render(200).then(function (rendered) {
-                expect(rendered[0].length).toEqual(200);
+            pb.render().then(function (rendered) {
+                expect(rendered[0].length).toEqual(pb.width);
                 done();
             });
         });
@@ -187,10 +188,10 @@ describe("--Progress--", function () {
                     width: function () { return compliant.length; }
                 }
             };
-            var pb = super_progress_1.Progress.create({
+            var pb = super_progress_1.Progress.create(200, {
                 pattern: "{shady token}"
             }, tokens);
-            pb.render(200).then(function (rendered) {
+            pb.render().then(function (rendered) {
                 expect(rendered[0].match('><')).toBeNull;
                 expect(rendered[0].trimRight()).toEqual(compliant);
                 done();
@@ -203,13 +204,33 @@ describe("--Progress--", function () {
                     width: function () { return 30; }
                 }
             };
-            var pb = super_progress_1.Progress.create({
+            var pb = super_progress_1.Progress.create(200, {
                 pattern: "{shrimpy token}|"
             }, tokens);
-            pb.render(200).then(function (rendered) {
+            pb.render().then(function (rendered) {
                 expect(rendered[0].split('|')[0].length).toEqual(30);
                 expect(rendered[0]).toEqual("shrimpy token" + ' '.repeat(17) + "|" + ' '.repeat(169));
                 done();
+            });
+        });
+    });
+    describe('-Streams-', function () {
+        it("reads a writable data stream and outputs an array of strings\n        representing the progress bar", function (done) {
+            StreamTest.versions.forEach(function (version) {
+                var ps = super_progress_1.Progress.create(14, {
+                    pattern: "{token}"
+                }, {
+                    token: {
+                        render: function () { return "RENDERED TOKEN"; },
+                        width: function () { return 14; }
+                    }
+                });
+                StreamTest[version].fromChunks(['random data'])
+                    .pipe(ps)
+                    .pipe(StreamTest[version].toObjects(function (err, objects) {
+                    expect(objects).toMatchObject([['RENDERED TOKEN']]);
+                    done();
+                }));
             });
         });
     });

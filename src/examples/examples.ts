@@ -29,9 +29,7 @@ async function runExamples() {
 function runExample(pb: Progress): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     let t = setInterval(() => {
-      pb.update()
-      .then(() => pb.render(process.stdout.columns! - 1))
-      .then(r => pb.display(r, process.stdout))
+      pb.tick()
       .then(() => {
         if (pb.state.percentComplete >= 1.0) {
           process.stdout.write(EOL);

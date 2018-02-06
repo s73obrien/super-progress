@@ -1,4 +1,14 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __assign = (this && this.__assign) || Object.assign || function(t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
         s = arguments[i];
@@ -44,15 +54,52 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var default_tokens_1 = require("./default-tokens");
-var readline_1 = require("readline");
+var stream_1 = require("stream");
 var os_1 = require("os");
 var stringWidth = require('string-width');
-var Progress = /** @class */ (function () {
-    function Progress(options, tokens, state) {
-        this.options = options;
-        this.tokens = tokens;
-        this.state = state;
+var ansiEscapes = require('ansi-escapes');
+var Progress = /** @class */ (function (_super) {
+    __extends(Progress, _super);
+    function Progress(width, options, tokens, state) {
+        var _this = _super.call(this, {
+            readableObjectMode: true
+        }) || this;
+        _this.width = width;
+        _this.options = options;
+        _this.tokens = tokens;
+        _this.state = state;
+        return _this;
     }
+    Progress.prototype._transform = function (data, encoding, callback) {
+        var _this = this;
+        this.update(data.length)
+            .then(function () { return _this.render(); })
+            .then(function (r) {
+            _this.push(r);
+            callback();
+        });
+    };
+    Progress.prototype._flush = function (callback) {
+        var _this = this;
+        this.complete()
+            .then(function () { return _this.render(); })
+            .then(function (r) {
+            _this.push(r);
+            callback();
+        });
+    };
+    Progress.prototype.tick = function (ticks, stream) {
+        if (ticks === void 0) { ticks = 1; }
+        if (stream === void 0) { stream = process.stdout; }
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.update(ticks)
+                        .then(function () { return _this.render(); })
+                        .then(function (r) { return _this.display(r, stream); })];
+            });
+        });
+    };
     Progress.prototype.display = function (rendered, stream) {
         return __awaiter(this, void 0, void 0, function () {
             var time;
@@ -60,9 +107,7 @@ var Progress = /** @class */ (function () {
                 time = Date.now();
                 if (time >= this.state.nextRender) {
                     this.state.nextRender = time + this.options.renderInterval;
-                    stream.write(rendered.join(os_1.EOL));
-                    readline_1.moveCursor(stream, 0, -1 * (rendered.length - 1));
-                    readline_1.cursorTo(stream, 0);
+                    stream.write(rendered.join(os_1.EOL) + ansiEscapes.cursorUp(rendered.length - 1) + ansiEscapes.cursorLeft);
                 }
                 return [2 /*return*/];
             });
@@ -95,13 +140,13 @@ var Progress = /** @class */ (function () {
             });
         });
     };
-    Progress.prototype.render = function (width) {
+    Progress.prototype.render = function () {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             var lines;
             return __generator(this, function (_a) {
                 lines = this.options.pattern.split(/\r\n|\r|\n/g);
-                return [2 /*return*/, Promise.all(lines.map(function (s) { return _this.renderLine(s, width); }))];
+                return [2 /*return*/, Promise.all(lines.map(function (s) { return _this.renderLine(s, _this.width); }))];
             });
         });
     };
@@ -158,7 +203,7 @@ var Progress = /** @class */ (function () {
             });
         });
     };
-    Progress.create = function (options, tokens, state) {
+    Progress.create = function (width, options, tokens, state) {
         var o = __assign({}, Progress.defaultProgressOptions, options);
         o.pattern = o.pattern;
         o.total = o.total;
@@ -169,7 +214,7 @@ var Progress = /** @class */ (function () {
             s.totalTicks = o.total;
             s.ticksLeft = o.total;
         }
-        return new Progress(o, t, s);
+        return new Progress(width, o, t, s);
     };
     Progress.defaultProgressOptions = {
         total: 100,
@@ -177,6 +222,6 @@ var Progress = /** @class */ (function () {
         renderInterval: 33
     };
     return Progress;
-}());
+}(stream_1.Transform));
 exports.Progress = Progress;
 //# sourceMappingURL=super-progress.js.map
