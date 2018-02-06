@@ -345,7 +345,10 @@ describe(`--Progress--`, () => {
           StreamTest[version].fromChunks(['random data'])
             .pipe(ps)
             .pipe(StreamTest[version].toObjects((err: any, objects: string[]) => {
-              expect(objects).toMatchObject([['RENDERED TOKEN']]);
+              expect(objects).toMatchObject([
+                ['RENDERED TOKEN'],
+                ['RENDERED TOKEN']
+              ]);
               done();
             }))
         });
